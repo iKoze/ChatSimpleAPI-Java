@@ -77,6 +77,12 @@ public class SimplifiedChatsimpleClient implements IConnectionHandler
 		client.send(say);
 	}
 	
+	public void sendTellMessage(String [] receiver, String message)
+	{
+		Tell tell = new Tell(sinfo.username, receiver, message);
+		client.send(tell);
+	}
+	
 	public void requestUserList()
 	{
 		client.send(new List());
