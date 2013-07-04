@@ -13,6 +13,7 @@ public class ConnectionSender extends Thread
 	protected PrintWriter writer;
 	protected IConnectionHandler handler;
 	protected Queue<DataBundle> queue;
+	protected boolean run = false;
 	
 	public ConnectionSender(ServerInfo server, PrintWriter writer, IConnectionHandler handler)
 	{
@@ -24,6 +25,7 @@ public class ConnectionSender extends Thread
 	
 	public synchronized void send(DataBundle data)
 	{
+		data.delimiter = server.delimiter;
 		queue.add(data);
 	}
 	
@@ -32,9 +34,18 @@ public class ConnectionSender extends Thread
 		return queue;
 	}
 	
+	public void disable()
+	{
+		writer.close();
+		queue.clear();
+		writer = null;
+		queue = null;
+		run = false;
+	}
+	
 	public void run()
 	{
-		boolean run = true;
+		run = true;
 		DataBundle to_send;
 		while(run)
 		{

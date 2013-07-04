@@ -18,10 +18,25 @@ public class ChatsimpleClient
 	
 	public static final String VERSION = "alpha 0.99";
 	
+	public ChatsimpleClient(IConnectionHandler handler)
+	{
+		this.handler = handler;
+	}
+	
 	public ChatsimpleClient(ServerInfo server, IConnectionHandler handler)
 	{
 		this.server = server;
 		this.handler = handler;
+	}
+	
+	public void setServerInfo(ServerInfo server)
+	{
+		this.server = server;
+	}
+	
+	public ServerInfo getServerInfo()
+	{
+		return this.server;
 	}
 	
 	public boolean connect()
@@ -53,19 +68,34 @@ public class ChatsimpleClient
 	
 	public void disconnect()
 	{
-		if(writer != null)
+		if(!isConnected())
 		{
-			writer.close();
+			return;
+		}
+		if(listener != null)
+		{
+			listener.disable();
+			listener = null;
+		}
+		if(sender != null)
+		{
+			sender.disable();
+			sender = null;
 		}
 		try
 		{
+			if(writer != null)
+			{
+				writer = null;
+			}
 			if(reader != null)
 			{
-				reader.close();
+				reader = null;
 			}
 			if(socket != null)
 			{
 				socket.close();
+				socket = null;
 			}
 		}
 		catch (Exception e)

@@ -11,31 +11,46 @@ public class SimplifiedChatsimpleClient implements IConnectionHandler
 {
 	protected ChatsimpleClient client;
 	protected ISimplifiedConnectionHandler s_connhandler;
-	protected ServerInfo sinfo;
 	protected BundleQueue queue;
 	
 	public static final String VERSION = "alpha 0.99";
 	
+	public SimplifiedChatsimpleClient(ISimplifiedConnectionHandler s_connhandler)
+	{
+		queue = new BundleQueue();
+		this.s_connhandler = s_connhandler;
+		client = new ChatsimpleClient(this);
+	}
+	
 	public SimplifiedChatsimpleClient(ServerInfo server, ISimplifiedConnectionHandler s_connhandler)
 	{
-		sinfo = server;
 		queue = new BundleQueue();
-		client = new ChatsimpleClient(server, this);
 		this.s_connhandler = s_connhandler;
+		client = new ChatsimpleClient(server, this);
 	}
 	
 	public SimplifiedChatsimpleClient(String address, String username, String password, ISimplifiedConnectionHandler s_connhandler)
 	{
 		ServerInfo info = new ServerInfo(address, username, password);
-		sinfo = info;
 		queue = new BundleQueue();
-		client = new ChatsimpleClient(info, this);
 		this.s_connhandler = s_connhandler;
+		client = new ChatsimpleClient(info, this);
+	}
+	
+	public void setServerInfo(String address, String username, String password)
+	{
+		ServerInfo info = new ServerInfo(address, username, password);
+		client.setServerInfo(info);
+	}
+	
+	public void setServerInfo(ServerInfo server)
+	{
+		client.setServerInfo(server);
 	}
 	
 	public ServerInfo getServerInfo()
 	{
-		return sinfo;
+		return client.getServerInfo();
 	}
 	
 	public boolean connect()
@@ -60,6 +75,7 @@ public class SimplifiedChatsimpleClient implements IConnectionHandler
 	
 	public boolean login()
 	{
+		ServerInfo sinfo = client.getServerInfo();
 		Login login = new Login(sinfo.username, sinfo.password);
 		queue.requestNextBundle();
 		client.send(login);
@@ -73,13 +89,13 @@ public class SimplifiedChatsimpleClient implements IConnectionHandler
 	
 	public void sendChatMessage(String message)
 	{
-		Say say = new Say(sinfo.username, message);
+		Say say = new Say(client.getServerInfo().username, message);
 		client.send(say);
 	}
 	
 	public void sendTellMessage(String [] receiver, String message)
 	{
-		Tell tell = new Tell(sinfo.username, receiver, message);
+		Tell tell = new Tell(client.getServerInfo().username, receiver, message);
 		client.send(tell);
 	}
 	
@@ -90,12 +106,12 @@ public class SimplifiedChatsimpleClient implements IConnectionHandler
 	
 	public boolean changeUsername(String new_username)
 	{
-		Rename rename = new Rename(sinfo.username, new_username);
+		Rename rename = new Rename(client.getServerInfo().username, new_username);
 		queue.requestNextBundle();
 		client.send(rename);
 		if(queue.waitForOk())
 		{
-			sinfo.username = new_username;
+			client.getServerInfo().username = new_username;
 			return true;
 		}
 		return false;
@@ -108,7 +124,7 @@ public class SimplifiedChatsimpleClient implements IConnectionHandler
 	
 	public void logout(String reason)
 	{
-		Logout logout = new Logout(sinfo.username, reason);
+		Logout logout = new Logout(client.getServerInfo().username, reason);
 		client.send(logout);
 	}
 	

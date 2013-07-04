@@ -12,6 +12,7 @@ public class ConnectionListener extends Thread
 	protected BufferedReader reader;
 	protected IConnectionHandler handler;
 	protected BundleQueue queue;
+	protected boolean run = false;
 	
 	public ConnectionListener(ServerInfo server, BufferedReader reader, IConnectionHandler handler)
 	{
@@ -29,9 +30,15 @@ public class ConnectionListener extends Thread
 		return queue;
 	}
 	
+	public void disable()
+	{
+		reader = null;
+		run = false;
+	}
+	
 	public void run()
 	{
-		boolean run = true;
+		run = true;
 		String response;
 		while(run)
 		{
