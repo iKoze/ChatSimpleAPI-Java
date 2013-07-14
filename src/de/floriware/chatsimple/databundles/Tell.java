@@ -6,6 +6,13 @@ public class Tell extends Say
 {
 	protected String [] receiver;
 	
+	protected void init()
+	{
+		type = Type.TELL;
+		sender = "";
+		chatmessage = "";
+	}
+	
 	public Tell()
 	{
 		super();

@@ -27,6 +27,7 @@ public class ConnectionSender extends Thread
 	{
 		data.delimiter = server.delimiter;
 		queue.add(data);
+		this.notify();
 	}
 	
 	public Queue<DataBundle> getQueue()
@@ -71,6 +72,19 @@ public class ConnectionSender extends Thread
 	
 	protected synchronized DataBundle getNextBundle()
 	{
-		return queue.poll();
+		DataBundle data;
+		while(queue.isEmpty())
+		{
+			try
+			{
+				this.wait();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		data = queue.poll();
+		return data;
 	}
 }

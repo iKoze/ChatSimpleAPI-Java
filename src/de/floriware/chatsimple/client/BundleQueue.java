@@ -15,21 +15,22 @@ public class BundleQueue
 		dataqueue = new LinkedList<DataBundle>();
 	}
 	
-	public void addDataBundle(DataBundle databundle)
+	public synchronized void addDataBundle(DataBundle databundle)
 	{
 		if(getnextbundle)
 		{
 			dataqueue.add(databundle);
 			getnextbundle = false;
+			this.notify();
 		}
 	}
 	
-	public synchronized void requestNextBundle()
+	public void requestNextBundle()
 	{
 		getnextbundle = true;
 	}
 	
-	public synchronized boolean waitForOk()
+	public boolean waitForOk()
 	{
 		return getNextBundle().getType() == Type.OK;
 	}
@@ -37,17 +38,16 @@ public class BundleQueue
 	public synchronized DataBundle getNextBundle()
 	{
 		DataBundle data;
-		//int i = 0;
 		while(dataqueue.isEmpty())
 		{
-		//	i++;
 			try
 			{
-				Thread.sleep(100);
+				this.wait();
 			}
-			catch (Exception e)
-			{}
-			//System.out.println(""+i+ " " + dataqueue.isEmpty());
+			catch(InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 		data = dataqueue.poll();
 		return data;
